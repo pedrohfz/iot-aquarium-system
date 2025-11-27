@@ -1,10 +1,13 @@
 # 🐠 Monitoramento Inteligente de Aquários com IoT
 
-    Monitoramento em Tempo Real • Alertas via WhatsApp • Dashboard Grafana • Wokwi + ESP32 + MQTT + Node-RED + InfluxDB
+    Monitoramento em Tempo Real • Alertas via WhatsApp
+    Dashboard Grafana • Wokwi + ESP32 + MQTT + Node-RED + InfluxDB
 
 ## 📌 Resumo do Projeto
 
-    Este projeto implementa um sistema completo de monitoramento ambiental para aquários, utilizando tecnologias IoT modernas. Dois tanques são monitorados em tempo real quanto aos parâmetros críticos:
+    Este projeto implementa um sistema completo de monitoramento ambiental para aquários,
+    utilizando tecnologias IoT modernas. 
+    Dois tanques são monitorados em tempo real quanto aos parâmetros críticos:
 
     - Temperature;
     - pH.
@@ -63,5 +66,6 @@
 
 📝 Autores
 
-    Pedro Henrique Leite, João Victor Cara Santos, Isadora Caetano Brandão de Sousa e Letícia Santiago da Silva
+    Pedro Henrique Leite, João Victor Cara Santos,
+    Isadora Caetano Brandão de Sousa e Letícia Santiago da Silva
     Estudante de Sistemas de Informação — Universidade Presbiteriana Mackenzie
