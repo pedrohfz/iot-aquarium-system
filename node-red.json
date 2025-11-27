@@ -1,0 +1,229 @@
+[
+    {
+        "id": "tab-wokwi-influx",
+        "type": "tab",
+        "label": "PROJETO",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "f91d93f6e0b56568",
+        "type": "mqtt in",
+        "z": "tab-wokwi-influx",
+        "name": "MQTT In — Tanque A",
+        "topic": "aquario/tanqueA/telemetry",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d28d0e8df6f0b232",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 120,
+        "wires": [
+            [
+                "435e7bd2e99c1e64"
+            ]
+        ]
+    },
+    {
+        "id": "8dfca60c1d39afc3",
+        "type": "mqtt in",
+        "z": "tab-wokwi-influx",
+        "name": "MQTT In — Tanque B",
+        "topic": "aquario/tanqueB/telemetry",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d28d0e8df6f0b232",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "435e7bd2e99c1e64"
+            ]
+        ]
+    },
+    {
+        "id": "435e7bd2e99c1e64",
+        "type": "json",
+        "z": "tab-wokwi-influx",
+        "name": "Formatar p/ JSON",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 350,
+        "y": 160,
+        "wires": [
+            [
+                "20f8800f2b0af556",
+                "caefec21543ed021"
+            ]
+        ]
+    },
+    {
+        "id": "20f8800f2b0af556",
+        "type": "function",
+        "z": "tab-wokwi-influx",
+        "name": "Verificar Limites",
+        "func": "let p = msg.payload;\n\nconst TEMP_MIN = 24;\nconst TEMP_MAX = 28;\nconst PH_MIN   = 6.5;\nconst PH_MAX   = 8.0;\n\nmsg.alerta = false;\nlet problemas = [];\n\nif (p.temp_c < TEMP_MIN || p.temp_c > TEMP_MAX) {\n    msg.alerta = true;\n    problemas.push(`Temperatura fora da faixa (${p.temp_c} °C)`);\n}\n\nif (p.ph < PH_MIN || p.ph > PH_MAX) {\n    msg.alerta = true;\n    problemas.push(`pH fora da faixa (${p.ph})`);\n}\n\nif (msg.alerta) {\n    msg.payload =\n        `🚨 ALERTA - ${p.aquario}\\n` +\n        `Temp.: ${p.temp_c} °C\\n` +\n        `pH: ${p.ph}\\n` +\n        `Problema(s): ${problemas.join(\" | \")}\\n` +\n        `Hora: ${p.ts}`;\n} else {\n    msg.payload =\n        `✅ ${p.aquario} OK\\n` +\n        `Temp.: ${p.temp_c} °C | pH: ${p.ph}\\n` +\n        `Hora: ${p.ts}`;\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 120,
+        "wires": [
+            [
+                "07de11157f023326"
+            ]
+        ]
+    },
+    {
+        "id": "b5d8d7ec6c099fcd",
+        "type": "influxdb out",
+        "z": "tab-wokwi-influx",
+        "influxdb": "b32c872f84c17481",
+        "name": "InfluxDB",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "4e639113606e4ff0",
+        "bucket": "1fb18d8c77615f37",
+        "x": 780,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "caefec21543ed021",
+        "type": "function",
+        "z": "tab-wokwi-influx",
+        "name": "Formatar p/ InfluxDB",
+        "func": "let p = msg.payload;\n\nmsg.measurement = \"aquario\";\n\nmsg.tags = {\n    tanque: p.aquario\n};\n\nmsg.fields = {\n    temp_c: p.temp_c,\n    ph: p.ph\n};\n\nmsg.timestamp = new Date(p.ts).getTime();\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 160,
+        "wires": [
+            [
+                "b5d8d7ec6c099fcd"
+            ]
+        ]
+    },
+    {
+        "id": "07de11157f023326",
+        "type": "switch",
+        "z": "tab-wokwi-influx",
+        "name": "Switch ⭢ Alerta",
+        "property": "alerta",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 760,
+        "y": 120,
+        "wires": [
+            [
+                "d7264c6a9d9170a8"
+            ]
+        ]
+    },
+    {
+        "id": "d7264c6a9d9170a8",
+        "type": "node-red-contrib-whatsapp-cmb-send-message",
+        "z": "tab-wokwi-influx",
+        "name": "CallMeBOT",
+        "credtype": "account",
+        "account": "e007c1bb73636ba8",
+        "text": "payload",
+        "phonenumbervalue": "",
+        "apikeyvalue": "",
+        "apikeyinputtypemessage": "msg",
+        "phonenumberinputtypemessage": "msg",
+        "inputtypemessage": "msg",
+        "rejectssl": false,
+        "x": 950,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d28d0e8df6f0b232",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b32c872f84c17481",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB Account",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "https://us-east-1-1.aws.cloud2.influxdata.com",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "e007c1bb73636ba8",
+        "type": "node-red-contrib-whatsapp-cmb-account",
+        "name": "Pedro Henrique Leite"
+    },
+    {
+        "id": "fda04d6041cb3cb2",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0",
+            "node-red-contrib-whatsapp-cmb": "1.0.3"
+        }
+    }
+]
