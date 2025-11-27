@@ -12,7 +12,9 @@
     - Temperature;
     - pH.
 
-    Os dados são recebidos por duas ESP32 (simuladas no Wokwi) e enviados via MQTT para o Node-RED, onde são processados, armazenados no InfluxDB e exibidos em um dashboard Grafana. Caso alguma leitura esteja fora dos limites, um alerta automático via WhatsApp é enviado.
+    Os dados são recebidos por duas ESP32 (simuladas no Wokwi) e enviados via MQTT para o Node-RED,
+    onde são processados, armazenados no InfluxDB e exibidos em um dashboard Grafana. 
+    Caso alguma leitura esteja fora dos limites, um alerta automático via WhatsApp é enviado.
 
 ## 🔧 Tecnologias Utilizadas
 
